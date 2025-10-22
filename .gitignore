@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Composer ignores
 vendor
 composer.phar
@@ -35,3 +36,35 @@ node_modules
 
 # Ignore generated public directory from `winter:mirror public`
 public
+=======
+/vendor/
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Laravel 4 specific
+bootstrap/compiled.php
+app/storage/
+
+# Laravel 5 & Lumen specific
+public/storage
+public/hot
+
+# Laravel 5 & Lumen specific with changed public path
+public_html/storage
+public_html/hot
+
+storage/*.key
+.env
+Homestead.yaml
+Homestead.json
+/.vagrant
+.phpunit.result.cache
+
+/public/build
+/storage/pail
+.env.backup
+.env.production
+.phpactor.json
+auth.json
+>>>>>>> fd992208392453426c8a9713a1c74fe9b650ab82
