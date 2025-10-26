@@ -30,7 +30,196 @@
 {% scripts %}
 
 <script>
-    new WOW().init();
+    // Handle preloader
+    $(window).on('load', function() {
+        $('#preloader').fadeOut(500, function() {
+            $(this).remove();
+        });
+    });
+
+    // Initialize WOW after page is fully loaded
+    $(window).on('load', function() {
+        setTimeout(function() {
+            new WOW().init();
+        }, 100);
+    });
+
+    // Handle navbar smooth fade-in (only once)
+    $(document).ready(function() {
+        // Show navbar with smooth fade-in after a short delay
+        setTimeout(function() {
+            $('.navbar-wrapper').addClass('navbar-visible');
+        }, 300);
+    });
+
+    // Initialize hero carousel with precise timing
+    $(document).ready(function() {
+        // Carousel configuration
+        var carouselOptions = {
+            interval: 3000,
+            pause: "hover",
+            wrap: true,
+            touch: true,
+            keyboard: false
+        };
+
+        // Initialize carousel immediately
+        var $carousel = $('#hero-carousel');
+        var slideInterval;
+        var isTransitioning = false;
+
+        // Custom carousel function with precise timing
+        function startCarousel() {
+            // Clear any existing interval
+            if (slideInterval) {
+                clearInterval(slideInterval);
+            }
+
+            // Ensure we start from slide 1 (index 0)
+            $carousel.carousel(0);
+
+            // Wait for initial load before starting auto-advance
+            setTimeout(function() {
+                if (!isTransitioning) {
+                    nextSlide();
+                }
+            }, 5000); // Start first change after 5 seconds
+
+            // Set consistent interval for subsequent changes
+            slideInterval = setInterval(function() {
+                if (!isTransitioning) {
+                    nextSlide();
+                }
+            }, 3000);
+        }
+
+        function nextSlide() {
+            if (isTransitioning) return;
+
+            isTransitioning = true;
+            $carousel.carousel('next');
+
+            // Reset transition flag after animation completes
+            setTimeout(function() {
+                isTransitioning = false;
+            }, 1500);
+        }
+
+        function prevSlide() {
+            if (isTransitioning) return;
+
+            isTransitioning = true;
+            $carousel.carousel('prev');
+
+            // Reset transition flag after animation completes
+            setTimeout(function() {
+                isTransitioning = false;
+            }, 1500);
+        }
+
+        // Touch swipe handling
+        var touchStartX = 0;
+        var touchEndX = 0;
+
+        $carousel.on('touchstart', function(e) {
+            touchStartX = e.originalEvent.touches[0].clientX;
+        });
+
+        $carousel.on('touchend', function(e) {
+            touchEndX = e.originalEvent.changedTouches[0].clientX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            var swipeThreshold = 50;
+            var diff = touchEndX - touchStartX;
+
+            if (Math.abs(diff) > swipeThreshold && !isTransitioning) {
+                if (diff > 0) {
+                    // Swipe right - go to previous slide
+                    clearInterval(slideInterval);
+                    prevSlide();
+                    // Restart interval after manual navigation
+                    setTimeout(startCarousel, 3000);
+                } else {
+                    // Swipe left - go to next slide
+                    clearInterval(slideInterval);
+                    nextSlide();
+                    // Restart interval after manual navigation
+                    setTimeout(startCarousel, 3000);
+                }
+            }
+        }
+
+        // Handle dot indicator clicks
+        $('.carousel-indicators li').on('click', function(e) {
+            e.preventDefault();
+            if (isTransitioning) return;
+
+            var slideIndex = $(this).data('slide-to');
+            clearInterval(slideInterval);
+
+            isTransitioning = true;
+            $carousel.carousel(slideIndex);
+
+            setTimeout(function() {
+                isTransitioning = false;
+            }, 1500);
+
+            // Restart interval after manual navigation
+            setTimeout(startCarousel, 3000);
+        });
+
+        // Handle hover pause
+        $carousel.on('mouseenter', function() {
+            clearInterval(slideInterval);
+        });
+
+        $carousel.on('mouseleave', function() {
+            startCarousel();
+        });
+
+        // Restart animations on slide change - ONLY for carousel elements
+        $carousel.on('slid.bs.carousel', function () {
+            // Re-initialize animations ONLY for carousel captions
+            var $currentSlide = $('.carousel-inner .item.active');
+            var $captions = $currentSlide.find('.wow');
+
+            // Immediately start animations without flicker
+            $captions.each(function(index) {
+                var $el = $(this);
+                var delay = index * 200; // 200ms delay between elements
+
+                // Reset animation
+                $el.css({
+                    'opacity': '0',
+                    'transform': $el.hasClass('h1') ? 'translateY(-30px)' : 'translateY(30px)',
+                    'transition': 'none'
+                });
+
+                // Animate after small delay
+                setTimeout(function() {
+                    $el.css({
+                        'opacity': '1',
+                        'transform': 'translateY(0)',
+                        'transition': 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                    });
+                }, delay);
+            });
+        });
+
+        // Handle page visibility change
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                clearInterval(slideInterval);
+            } else {
+                startCarousel();
+            }
+        });
+
+        // Start the carousel
+        startCarousel();
+    });
 </script>
 </body>
 </html>

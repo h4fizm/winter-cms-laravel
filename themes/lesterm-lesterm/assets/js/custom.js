@@ -23,6 +23,44 @@ $('.navbar-collapse ul li a').click(function() {
     $('.navbar-toggle:visible').click();
 });
 
+/* hero carousel with touch swipe support */
+$(document).ready(function() {
+    // Enable touch swipe for hero carousel
+    var touchStartX = 0;
+    var touchEndX = 0;
+
+    $('#hero-carousel').on('touchstart', function(e) {
+        touchStartX = e.originalEvent.touches[0].clientX;
+    });
+
+    $('#hero-carousel').on('touchend', function(e) {
+        touchEndX = e.originalEvent.changedTouches[0].clientX;
+        handleSwipe();
+    });
+
+    function handleSwipe() {
+        var swipeThreshold = 50;
+        var diff = touchEndX - touchStartX;
+
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                // Swipe right - go to previous slide
+                $('#hero-carousel').carousel('prev');
+            } else {
+                // Swipe left - go to next slide
+                $('#hero-carousel').carousel('next');
+            }
+        }
+    }
+
+    // Initialize carousel
+    $('#hero-carousel').carousel({
+        interval: 3000,
+        pause: "hover",
+        wrap: true
+    });
+});
+
 /* carousel */
 $(document).ready(function() {
 $("#screenshots").owlCarousel({
